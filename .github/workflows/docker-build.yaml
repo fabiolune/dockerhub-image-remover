@@ -1,0 +1,37 @@
+name: docker build & push
+
+on:
+  create:
+    tags: 'v*'
+  push:
+    branches: [ main ]
+
+jobs:
+  release:
+     runs-on: ubuntu-latest
+     steps:
+     - name: Checkout
+       uses: actions/checkout@v1
+     - id: version-extractor
+       name: Extract version
+       run: |
+         if [[ ${GITHUB_REF} == *"refs/tags"* ]]; 
+         then
+           echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
+         else 
+           echo ::set-output name=VERSION::latest
+         fi
+     - name: Dockerhub login
+       env:
+         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+       run: echo "${DOCKER_PASSWORD}" | docker login --username ${DOCKER_USERNAME} --password-stdin
+     - name: Set up Docker Buildx
+       id: buildx
+       uses: crazy-max/ghaction-docker-buildx@v1
+       with:
+         version: latest
+     - name: Multi arch build
+       env: 
+         VERSION: ${{ steps.version-extractor.outputs.VERSION }}
+       run: docker buildx build --platform=linux/arm/v7,linux/arm64/v8,linux/amd64 -t fabiolune/dockerhub-image-remover:${VERSION} --push .
