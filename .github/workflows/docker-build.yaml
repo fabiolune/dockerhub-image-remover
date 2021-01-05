@@ -22,6 +22,8 @@ jobs:
        uses: crazy-max/ghaction-docker-buildx@v1
        with:
          version: latest
+     - name: Add permissions
+       run: chmod +x script.sh
      - name: Multi arch build
        run: |
          if [[ ${GITHUB_REF} == *"refs/tags"* ]]; 
