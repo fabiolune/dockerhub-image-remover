@@ -9,4 +9,4 @@ tag=$4
 HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'$usr'", "password": "'$pwd'"}' https://hub.docker.com/v2/users/login/ | grep -o '"token":[^"]*"[^"]*"' | sed -E 's/".*".*"(.*)"/\1/')
 
 #uses previously obtained jwt access token to invoke the DELETE api and remove tha specific 'image:tag'
-curl -X DELETE -s -H "Accept: application/json" -H "Authorization: JWT $HUB_TOKEN" https://hub.docker.com/v2/repositories/$usr/$img/tags/$tag/
+curl -X DELETE -s -H "Accept: application/json" -H "Authorization: JWT $HUB_TOKEN" https://hub.docker.com/v2/repositories/$img/tags/$tag/
